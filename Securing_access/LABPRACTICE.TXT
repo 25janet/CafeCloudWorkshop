@@ -1,0 +1,33 @@
+IAM Users and Groups Lab Practice
+
+In this lab, the objective was to explore how IAM users inherit permissions through IAM groups.
+
+I created three IAM users:
+
+User1
+
+User2
+
+User3
+
+I also created three IAM groups, each with specific permissions:
+
+S3Support – Read-only access to Amazon S3
+
+EC2Support – Read-only access to Amazon EC2
+
+EC2Admin – Permission to view, start, and stop EC2 instances
+
+At the start of the lab, none of the users were assigned to any group, meaning they had no permissions due to IAM’s implicit deny behavior.
+
+I then assigned users to groups as follows:
+
+User1 → S3Support
+
+User2 → EC2Support
+
+User3 → EC2Admin
+
+After assigning the users to their respective groups, I tested the permissions by signing in as each user using the IAM user sign-in URL, which I accessed from the Security Credentials section.
+
+This confirmed that each user only had the permissions associated with the group they were assigned to, demonstrating the principle of least privilege and how IAM group-based access control works in practice.
