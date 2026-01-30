@@ -9,5 +9,7 @@ I learnt that we must follow the IAM Security Best Practices:
 
         Use temporary credentials via IAM Roles and AWS STS instead of long-term credentials. 
 Moreover in IAM there is IAM resources: IAM users,IAM roles,IAM groups and IAM policies
+
 In IAM policies it has the following elements, which are(Version, statement,effect,principal,action,resources,conditions) this elements constitutes and make up what the permissions are allowed and Denied
+
 IAM policies have an implicit deny(default deny) that is override by the explicit allow which in turn is overriden with the explicit deny  
