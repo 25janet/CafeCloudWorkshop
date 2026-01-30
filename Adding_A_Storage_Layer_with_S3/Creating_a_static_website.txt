@@ -1,0 +1,92 @@
+Steps Followed
+1. Create an S3 Bucket
+
+    I created an Amazon S3 bucket to host the static website
+
+    The bucket name was globally unique
+
+2. Disable Block Public Access
+
+    I disabled Block all public access to allow the bucket to be publicly accessible
+
+    This is required for static website hosting
+
+3. Enable ACLs and Static Website Hosting
+
+    I enabled ACLs on the bucket
+
+    I enabled Static website hosting
+
+    I specified index.html as the index document
+
+4. Upload Website Content
+
+    I uploaded the static files (HTML, CSS, and JavaScript) to the S3 bucket
+
+5. Create a Bucket Policy (Read-Only Access)
+
+    I created a bucket policy to grant public read-only (s3:GetObject) permissions
+
+    This allows users to access the website content through the S3 website endpoint
+
+    The bucket policy used:
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                        "Sid": "PublicReadGetObject",
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": "s3:GetObject",
+                        "Resource": "arn:aws:s3:::my-aws-alx-demo-123/*"
+                        }
+                    ]
+                    }
+
+
+6. Enable Bucket Versioning
+
+    I enabled S3 Versioning on the bucket
+
+    This allows multiple versions of objects to be stored and helps with recovery from accidental deletions or overwrites
+
+7. Configure Lifecycle Policies
+
+    I created two lifecycle policies to manage storage cost and data retention:
+
+    Transition lifecycle policy
+
+        Transitions objects from S3 Standard to S3 Standard-IA after 30 days
+
+    Expiration lifecycle policy
+
+        Expires (deletes) objects after 365 days
+
+Cross-Region Replication (CRR)
+
+    To improve durability and disaster recovery, I configured Cross-Region Replication (CRR):
+
+    I created a second S3 bucket in a different AWS region
+
+    I enabled versioning on the destination bucket
+
+    In the source bucket, I enabled CRR to replicate the entire bucket to the destination bucket
+
+    I used the AWS-managed IAM role (Cafe role) to allow S3 to replicate objects
+
+CRR ensures that objects are automatically copied to another region for redundancy and availability.
+
+Additional S3 Features
+Object Lock
+
+    Object Lock prevents objects from being deleted or overwritten for a fixed retention period
+
+    Useful for compliance and data protection use cases
+
+Cross-Origin Resource Sharing (CORS)
+
+    CORS allows a web application hosted in one domain to access S3 resources in another domain
+
+    Configured using an XML-based CORS configuration
+
+    Commonly required for frontend applications that interact with S3 buckets
