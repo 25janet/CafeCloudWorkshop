@@ -1,0 +1,101 @@
+CONFIGURING AN EC2 INSTANCE USING USER DATA (APACHE HTTP SERVER)
+The steps I Undertook to create an inatsnce with user data scripts
+
+------------------------------------------------------------
+STEP 1: LAUNCH EC2 INSTANCE
+------------------------------------------------------------
+1. Open AWS Management Console
+2. Go to EC2 → Launch instance
+
+Instance configuration:
+- Name: MyDemoServer
+- AMI: Amazon Linux 2023
+- Instance type: t2.micro
+- Key pair:
+  - Create new key pair
+  - Name: roku
+  - Type: RSA
+  - File format: .pem
+- Network settings:
+  - Enable Auto-assign Public IP
+  - Security Group inbound rules:
+    - SSH (Port 22) from My IP
+    - HTTP (Port 80) from Anywhere (IPv4)
+
+------------------------------------------------------------
+STEP 2: ADD USER DATA SCRIPT
+------------------------------------------------------------
+In Advanced Details → User Data, paste the following:
+
+#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "Hello World from my EC2 instance" > /var/www/html/index.html
+
+------------------------------------------------------------
+STEP 3: LAUNCH INSTANCE
+------------------------------------------------------------
+- Click Launch Instance
+- Wait until instance state is Running
+- Copy the Public IPv4 address
+
+------------------------------------------------------------
+STEP 4: CONNECT TO EC2 USING SSH
+------------------------------------------------------------
+1. Open AWS CloudShell or local terminal
+2. Upload the key pair file (roku.pem)
+
+Change key permissions:
+chmod 400 roku.pem
+
+Connect to the instance:
+ssh -i roku.pem ec2-user@<PUBLIC_IP_ADDRESS>
+
+NOTE:
+The correct username is ec2-user.
+
+------------------------------------------------------------
+STEP 5: CHECK HTTP SERVICE STATUS
+------------------------------------------------------------
+Run the following command to verify Apache is running:
+
+systemctl status httpd
+
+Expected result:
+- Active: active (running)
+
+------------------------------------------------------------
+STEP 6: VIEW HTML FILE CONTENT
+------------------------------------------------------------
+Check the content of the web page:
+
+cat /var/www/html/index.html
+
+Expected output:
+Hello World from my EC2 instance
+
+------------------------------------------------------------
+STEP 7: TEST USING WEB BROWSER
+------------------------------------------------------------
+1. Open a web browser
+2. Paste the Public IP address:
+
+http://<PUBLIC_IP_ADDRESS>
+
+Expected output:
+Hello World from my EC2 instance
+
+------------------------------------------------------------
+STEP 8: OPTIONAL – CHECK PUBLIC IP FROM INSTANCE
+------------------------------------------------------------
+curl http://169.254.169.254/latest/meta-data/public-ipv4
+
+------------------------------------------------------------
+SUMMARY
+------------------------------------------------------------
+- EC2 instance configured using user data
+- Apache web server installed automatically
+- HTTP service verified using systemctl
+- Web page accessed using public IP address

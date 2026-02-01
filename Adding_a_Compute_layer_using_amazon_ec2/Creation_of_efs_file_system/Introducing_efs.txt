@@ -1,0 +1,77 @@
+Objectives:
+- Create an EFS file system
+- Log in to an EC2 instance that runs on Linux
+- Mount your file system on an EC2 instance
+
+--------------------------------------------------
+Task 1: Create a security group to access EFS
+
+- SG: EFS mount target
+- Description: Inbound NFS access from client
+- VPC: Lab VPC
+- Inbound rules:
+  - Type: NFS
+  - Source: Custom
+  - Source security group: Security group ID for the EFS client
+
+--------------------------------------------------
+Task 2: Create an EFS file system
+
+- Create file system
+- Disable automatic backups
+- Lifecycle management:
+  - Transition to IA: None
+
+Tags:
+- Key: Name
+- Value: My First EFS File System
+
+VPC:
+- Select Lab VPC
+- Remove default security group
+- Attach EFS mount target security group
+
+--------------------------------------------------
+Task 3: Connect to EC2 instance
+
+- Connect to EC2 instance through Instance Connect URL
+  (or AWS Systems Manager Session Manager)
+
+--------------------------------------------------
+Task 4: Create a directory and mount the EFS file system
+
+Commands:
+sudo su - ec2-user
+sudo yum install -y amazon-efs-utils
+sudo mkdir efs
+
+- On the EFS page, choose \"Attach\" to open EC2 mount instructions
+- Copy and run the entire mount command using the NFS client
+
+Verify disk usage:
+sudo df -hT
+
+--------------------------------------------------
+Task 5: Examine the performance behavior of the EFS file system
+
+Run FIO test:
+sudo fio --name=fio-efs --filesize=10G --filename=./efs/fio-test.img \
+--bs=1M --nrfiles=1 --direct=1 --sync=0 \
+--rw=write --iodepth=200 --ioengine=libaio
+
+--------------------------------------------------
+Task 6: Monitor performance using CloudWatch
+
+- Open CloudWatch
+- Go to All metrics
+- Select EFS
+- Choose File system metrics
+
+Metrics to observe:
+- PermittedThroughput
+- DataWriteIOBytes
+
+Graph settings:
+- Graphed metrics
+- Statistics: Sum
+- Period: 1 minute

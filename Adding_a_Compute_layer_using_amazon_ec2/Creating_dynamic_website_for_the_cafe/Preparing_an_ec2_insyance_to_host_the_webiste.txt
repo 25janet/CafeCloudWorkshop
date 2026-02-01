@@ -1,0 +1,155 @@
+LAB: CREATING A DYNAMIC WEBSITE FOR THE CAFE APPLICATION
+========================================================
+
+TASK 1: ANALYZE THE EXISTING EC2 INSTANCE
+----------------------------------------
+
+1. Verify EC2 networking:
+   - Check whether the instance is in a public subnet
+   - Confirm it has an IPv4 public IP address
+   - Review inbound rules:
+     * TCP port 22 (SSH)
+     * TCP port 8000 (HTTP application access)
+   - Confirm whether an IAM role is attached to the instance
+
+2. Connect to the IDE on the EC2 instance:
+   - Use labIDEURL to open the browser-based IDE
+   - Paste labIDEPasword when prompted
+
+
+TASK 2: CONFIGURE LAMP STACK AND WEB SERVER
+-------------------------------------------
+
+1. Verify operating system:
+   cat /proc/version
+
+2. Configure Apache (httpd):
+   sudo sed -i 's/Listen 80/Listen 8000/g' /etc/httpd/conf/httpd.conf
+   sudo systemctl start httpd
+   sudo systemctl enable httpd
+   sudo service httpd status
+
+3. Verify PHP installation:
+   php --version
+
+4. Ensure web server is reachable on TCP port 8000
+
+
+TASK 3: INSTALL AND CONFIGURE DATABASE (MARIADB)
+------------------------------------------------
+
+1. Install MariaDB server:
+   sudo dnf install -y mariadb105-server
+
+2. Start and enable MariaDB:
+   sudo systemctl start mariadb
+   sudo systemctl enable mariadb
+   sudo service mariadb status
+
+3. Verify database version:
+   mariadb --version
+
+
+TASK 4: PREPARE EC2 INSTANCE FOR WEB DEVELOPMENT
+------------------------------------------------
+
+1. Change ownership of web directory:
+   cd ~/environment
+   sudo chown ec2-user:ec2-user /var/www/html
+
+2. Allow inbound traffic:
+   - Configure security group to allow TCP port 8000 from anywhere (0.0.0.0/0)
+
+
+TASK 5: INSTALL AND CONFIGURE THE CAFE APPLICATION
+--------------------------------------------------
+
+1. Install the cafe application:
+   cd ~/environment/setup/
+   ./set-app-parameters.sh
+
+2. Retrieve database password:
+   - Go to AWS Management Console
+   - Open Secrets Manager
+   - Select the password secret
+   - Retrieve the secret value
+
+3. Configure MySQL database:
+   cd ../db/
+   ./set-root-password.sh
+   ./create-db.sh
+
+4. Connect to the database:
+   mysql -u admin -p
+   (Paste dbPassword when prompted)
+
+5. Verify database contents:
+   show databases;
+   use cafe_db;
+   show tables;
+   select * from product;
+   exit;
+
+
+TASK 6: CONFIGURE PHP TIME ZONE
+-------------------------------
+
+1. Update PHP configuration:
+   sudo sed -i "s/;date.timezone =/date.timezone = \"America\/New_York\"/" /etc/php.ini
+
+2. Restart Apache:
+   sudo systemctl restart httpd
+
+
+TASK 7: TEST THE APPLICATION
+----------------------------
+
+1. Open a web browser
+2. Navigate to:
+   http://<Public-IPv4-or-DNS>:8000
+3. Verify the cafe application loads correctly
+
+
+TASK 8: CREATE DEV AND PROD ENVIRONMENTS IN DIFFERENT REGIONS
+-------------------------------------------------------------
+
+1. Create a new key pair on the EC2 instance
+2. Make the key available to SSH utilities
+
+3. Create an AMI:
+   - EC2 Console → Actions → Image and templates → Create image
+   - Save the AMI
+
+4. Copy AMI to another AWS Region (us-west-2)
+
+5. Launch a new EC2 instance from the copied AMI:
+   - Name tag: ProdCafeServer
+   - Instance type: t2.small
+   - Key pair: Proceed without a key pair
+   - IAM role: CafeRole
+   - VPC: LAB VPC
+   - Subnet: Public subnet
+   - Security group: cafeSG
+     * TCP port 22
+     * TCP port 8000
+
+6. Launch the instance
+7. Copy the Public IPv4 DNS name
+
+
+TASK 9: CONFIGURE SECRETS IN PRODUCTION REGION
+----------------------------------------------
+
+1. Create required Secrets Manager entries in us-west-2
+
+2. Edit application parameters:
+   - region = "us-west-2"
+   - publicDNS = "<ProdCafe Public DNS>"
+
+3. Save the file
+
+4. Run configuration script:
+   cd ~/environment/setup/
+   ./set-app-parameters.sh
+
+5. Verify the production cafe application works correctly
