@@ -1,0 +1,121 @@
+
+
+Objective:
+Migrate data from a MariaDB/MySQL database running on an EC2 instance to an Amazon RDS instance.
+
+--------------------------------------------------
+TASK 1: Create an RDS Instance
+--------------------------------------------------
+Engine Type: MariaDB
+Template: Dev/Test
+DB Instance Identifier: CafeDatabase
+Master Username: admin
+Master Password: CafeDbPassword
+Instance Class: db.t3.micro (burstable class)
+Storage Type: General Purpose (gp2)
+Allocated Storage: 20 GiB
+Availability: Do not create a standby instance
+
+Connectivity & Security:
+VPC: Lab VPC
+DB Subnet Group: lab-db-subnet
+Public Access: No
+VPC Security Group: dbSG
+Availability Zone: us-east-1a
+Port: 3306
+Monitoring: Disable enhanced monitoring
+
+Create the database.
+
+--------------------------------------------------
+TASK 2: Analyze Existing Cafe App Deployment
+--------------------------------------------------
+1. Identify the EC2 instances.
+2. Check the CafeServer instance.
+3. Use the public IPv4 address of the CafeServer instance.
+4. Test the Menu page.
+5. Test the Order Confirmation page.
+6. Check Order History to view existing orders.
+
+Connect to the instance:
+- Instances â†’ CafeServer instance â†’ Connect â†’ Session Manager â†’ Connect
+
+At the prompt:
+bash
+sudo su
+su ec2-user
+whoami
+cd /home/ec2-user
+
+--------------------------------------------------
+TASK 3: Work with the Database on the EC2 Instance
+--------------------------------------------------
+1. Observe database details:
+   service mariadb status
+   mysql --version
+
+2. Navigate to AWS Secrets Manager:
+   - Locate dbPassword secret
+   - Retrieve the secret value
+
+3. Connect to the database:
+   mysql -u root -p
+
+4. When prompted, paste the database password.
+
+5. Verify data:
+   show databases;
+   use cafeDB;
+   show tables;
+   select * from orders;
+   exit;
+
+6. Capture existing data in a file:
+   mysqldump cafeDB -u root -p > cafeDBDump.sql
+
+7. View the dump file:
+   cat cafeDBDump.sql
+
+--------------------------------------------------
+TASK 4: Work with the RDS Instance
+--------------------------------------------------
+1. Ensure the RDS instance status is Available.
+
+2. Connect from EC2 to RDS:
+   mysql -u admin -p -h <RDS-endpoint>
+
+3. Enter the RDS instance password when prompted.
+
+4. Update inbound rules of the RDS security group:
+   - Allow TCP port 3306
+   - Source: EC2 instance security group only
+
+5. Confirm connectivity:
+   nmap -p 3306 <RDS-endpoint>
+
+--------------------------------------------------
+TASK 5: Import Data into RDS
+--------------------------------------------------
+1. Import the database:
+   mysql -u admin -p -h <RDS-endpoint> < cafeDBDump.sql
+
+2. Verify imported data:
+   mysql -u admin -p -h <RDS-endpoint>
+   show databases;
+   use cafeDB;
+   show tables;
+   select * from orders;
+   exit;
+
+--------------------------------------------------
+TASK 6: Connect Cafe App to RDS and Stop EC2 Database
+--------------------------------------------------
+1. Open AWS Secrets Manager.
+2. Update the DB URL with the RDS endpoint.
+3. Test the application:
+   http://<public-ip>/cafe/menu.php
+
+4. SSH into the EC2 instance and stop MariaDB:
+   sudo service mariadb stop
+
+--------------------------------------------------

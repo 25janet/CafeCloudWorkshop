@@ -1,0 +1,125 @@
+LAB 2: CREATING AND CONNECTING AN AMAZON RDS DATABASE
+====================================================
+
+OBJECTIVE
+---------
+To create an Amazon RDS database instance and configure a web application
+to connect to the database, then perform basic CRUD operations
+(add, edit, delete inventory records).
+
+----------------------------------------------------
+TASK 1: CREATE AN AMAZON RDS DATABASE
+----------------------------------------------------
+
+1. Log in to the AWS Management Console.
+
+2. Navigate to:
+   Services → RDS → Databases → Create database
+
+3. Choose database creation method:
+   - Standard create
+
+4. Engine options:
+   - Database engine: MySQL
+   (Aurora is different from RDS MySQL; use MySQL for this lab)
+
+5. Templates:
+   - Free tier
+
+6. Availability and durability:
+   - Single-AZ DB instance
+   (Multi-AZ is optional and not part of Free Tier)
+
+7. DB instance identifier:
+   - inventory-db
+
+8. Credentials management:
+   - Choose self-managed
+   - Master username: admin
+   - Master password: lab-password
+
+9. Instance configuration:
+   - DB instance class: db.t3.micro (or db.t4g.micro if available)
+
+10. Storage:
+    - Storage type: General Purpose SSD (gp2 or gp3)
+    - Allocated storage: 20 GB
+    - Enable storage autoscaling
+
+11. Connectivity:
+    - Virtual Private Cloud (VPC): Default VPC
+    - Subnet group: Default
+    - Public access: Yes
+    - VPC security group: Choose existing or create new
+      (Ensure MySQL port 3306 is allowed)
+
+12. Monitoring:
+    - Database Insights: Standard
+
+13. Additional configuration:
+    - Initial database name: inventory
+
+14. Click "Create database" and wait for the DB status to become "Available".
+
+----------------------------------------------------
+TASK 2: CONFIGURE THE WEB APPLICATION TO CONNECT
+----------------------------------------------------
+
+1. Ensure the web application server is running
+   and has a public IP address.
+
+2. Open a web browser and paste the public IP address
+   of the application server into the address bar.
+
+3. The web application interface should appear.
+
+----------------------------------------------------
+TASK 3: RETRIEVE THE DATABASE ENDPOINT
+----------------------------------------------------
+
+1. Go to:
+   AWS Management Console → RDS → Databases
+
+2. Select:
+   inventory-db
+
+3. Navigate to:
+   Connectivity & security
+
+4. Copy the RDS Endpoint.
+
+----------------------------------------------------
+TASK 4: CONFIGURE DATABASE SETTINGS IN THE APPLICATION
+----------------------------------------------------
+
+1. Open the web application database configuration page.
+
+2. Enter the following details:
+   - Endpoint (Host): <Paste RDS Endpoint>
+   - Database name: inventory
+   - Username: admin
+   - Password: lab-password
+   - Port: 3306
+   - Engine: MySQL
+
+3. Save the settings.
+
+4. The application securely stores these credentials
+   in AWS Secrets Manager and uses them to connect
+   to the database.
+
+----------------------------------------------------
+TASK 5: VERIFY DATABASE OPERATIONS
+----------------------------------------------------
+
+1. Using the web application:
+   - Add new inventory records
+   - Edit existing inventory records
+   - Delete inventory records
+
+2. Insert new records into the database table
+   and confirm the data is stored correctly.
+
+----------------------------------------------------
+END OF LAB
+----------------------------------------------------
