@@ -1,6 +1,3 @@
-LAB 2: CREATING AND CONNECTING AN AMAZON RDS DATABASE
-====================================================
-
 OBJECTIVE
 ---------
 To create an Amazon RDS database instance and configure a web application
