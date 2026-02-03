@@ -1,0 +1,104 @@
+This lab demonstrates how to build a custom Amazon Virtual Private Cloud
+(VPC) and deploy resources within it. The lab focuses on creating public
+and private subnets, configuring internet connectivity, and launching an
+EC2 instance to validate the setup.
+
+Duration: Approximately 30 minutes
+
+  --------------------------------------------------
+  TASK 1: CREATING A VPC
+  --------------------------------------------------
+  1. Open the AWS Management Console. 2. Navigate to
+  the VPC service. 3. Choose “Your VPCs” from the
+  left navigation pane. 4. Click “Create VPC”. 5.
+  Configure the VPC: - Name tag: Lab VPC - IPv4 CIDR
+  block: 10.0.0.0/16 6. Choose “Create VPC”. 7. Open
+  the Tags tab. 8. Choose Actions → Edit VPC
+  settings. 9. Enable DNS hostnames. 10. Save the
+  changes.
+
+  --------------------------------------------------
+
+TASK 2: CREATING SUBNETS
+
+Task 2.1: Creating a Public Subnet 1. Navigate to Subnets. 2. Choose
+“Create subnet”. 3. Configure: - VPC ID: Lab VPC - Subnet name: Public
+Subnet - Availability Zone: First AZ in the list - IPv4 CIDR block:
+10.0.0.0/24 4. Create the subnet. 5. Select the Public Subnet. 6. Choose
+Actions → Edit subnet settings. 7. Enable auto-assign public IPv4
+address. 8. Save settings.
+
+Task 2.2: Creating a Private Subnet 1. Choose “Create subnet”. 2.
+Configure: - VPC ID: Lab VPC - Subnet name: Private Subnet -
+Availability Zone: First AZ in the list - IPv4 CIDR block: 10.0.2.0/23
+3. Create the subnet.
+
+  --------------------------------------------------
+  TASK 3: CREATING AN INTERNET GATEWAY
+  --------------------------------------------------
+  1. Navigate to Internet Gateways. 2. Choose
+  “Create internet gateway”. 3. Name tag: Lab IGW.
+  4. Create the internet gateway. 5. Choose Actions
+  → Attach to VPC. 6. Select Lab VPC. 7. Attach the
+  internet gateway.
+
+  --------------------------------------------------
+
+TASK 4: CONFIGURING ROUTE TABLES
+
+1.  Navigate to Route Tables.
+2.  Select the route table associated with Lab VPC.
+3.  Rename it to “Private Route Table”.
+4.  Create a new route table:
+    -   Name: Public Route Table
+    -   VPC: Lab VPC
+5.  Edit routes in Public Route Table:
+    -   Destination: 0.0.0.0/0
+    -   Target: Internet Gateway (Lab IGW)
+6.  Save routes.
+7.  Associate the Public Route Table with the Public Subnet.
+
+  --------------------------------------------------
+  TASK 5: CREATING A SECURITY GROUP
+  --------------------------------------------------
+  1. Navigate to Security Groups. 2. Choose “Create
+  security group”. 3. Configure: - Name: App-SG -
+  Description: Allow HTTP traffic - VPC: Lab VPC 4.
+  Add inbound rule: - Type: HTTP - Source:
+  Anywhere-IPv4 (0.0.0.0/0) 5. Create the security
+  group.
+
+  --------------------------------------------------
+
+TASK 6: LAUNCHING AN APPLICATION SERVER
+
+1.  Navigate to the EC2 service.
+2.  Choose “Launch instance”.
+3.  Configure:
+    -   Name: App Server
+    -   AMI: Amazon Linux 2023
+    -   Instance type: t2.micro
+    -   Key pair: vockey
+4.  Network settings:
+    -   VPC: Lab VPC
+    -   Subnet: Public Subnet
+    -   Security group: App-SG
+5.  IAM instance profile: Inventory-App-Role
+6.  Add user data script to install Apache, PHP, and application files.
+7.  Launch the instance.
+8.  Wait until status checks show 2/2 passed.
+9.  Copy the Public IPv4 DNS.
+10. Paste the DNS into a browser to verify application access.
+
+  ----------------
+  LAB COMPLETION
+  ----------------
+
+-   VPC successfully deployed
+-   Public and private subnets created
+-   Internet gateway attached
+-   Route tables configured
+-   Security group created
+-   Application server launched and verified
+
+
