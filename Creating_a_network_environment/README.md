@@ -147,6 +147,3 @@ Private Subnet (DB Tier)
 
 ---
 
-##  Notes
-
-This environment is designed for **learning, testing, and experimentation** and closely follows AWS best practices for secure network architecture.
