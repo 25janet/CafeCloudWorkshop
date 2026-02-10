@@ -1,0 +1,110 @@
+# Highly Available Web Application on AWS
+
+**Service Focus:** EC2, ALB, Auto Scaling, VPC, Security Groups, RDS
+**Goal:** Transform a single-instance application into a highly available, fault-tolerant architecture
+
+---
+
+## Project Overview
+
+In this lab, a single EC2–based application was converted into a highly available AWS architecture by distributing resources across multiple Availability Zones.
+The solution uses:
+
+* Application Load Balancer (ALB) for traffic distribution
+* Auto Scaling Group (ASG) for resilience and fault recovery
+* Private subnets for secure backend deployment
+* Layered security groups to enforce a three-tier architecture
+
+---
+
+## Architecture Summary
+
+**Traffic flow:**
+
+```
+User → Application Load Balancer (Public Subnets)
+     → EC2 Instances (Private Subnets, Auto Scaling Group)
+     → Amazon RDS (Private Subnet)
+```
+
+This design ensures:
+
+* No direct internet access to EC2 instances or the database
+* Automatic recovery from instance or AZ failure
+* Secure, scalable, and highly available infrastructure
+
+---
+
+## Step-by-Step Implementation
+
+### 1. Inspecting the Existing VPC
+
+* Reviewed the preconfigured **Lab VPC (10.0.0.0/16)**
+* Identified public and private subnets, Internet Gateway, NAT Gateway, and RDS instance
+
+**Significance:** Understanding network layout is critical before deploying scalable resources.
+
+### 2. Creating an Application Load Balancer (ALB)
+
+* Created a public ALB across two Availability Zones
+* Attached it to public subnets
+* Configured security group to allow HTTP (80) and HTTPS (443)
+* Created a target group with health checks
+
+**Significance:** ALB distributes traffic evenly, ensures users reach healthy instances, and improves fault tolerance.
+
+### 3. Creating an AMI
+
+* Created a custom Amazon Machine Image (AMI) from an existing EC2 instance
+* Captured OS, Apache, PHP, and application files
+
+**Significance:** Ensures consistent and identical instances when Auto Scaling launches new servers.
+
+### 4. Creating a Launch Template
+
+* Defined AMI, instance type (t2.micro), security group, IAM role, user data script, and CloudWatch monitoring
+
+**Significance:** Standardizes instance creation and is required for Auto Scaling.
+
+### 5. Creating an Auto Scaling Group (ASG)
+
+* Deployed instances across two private subnets
+* Desired capacity: 2 instances
+* Attached to ALB target group
+* Enabled ELB health checks
+
+**Significance:** Maintains availability, automatically replaces failed instances, and spreads instances across Availability Zones.
+
+### 6. Configuring Three-Tier Security
+
+* Load Balancer SG: Accepts internet traffic
+* Application SG: Accepts traffic only from ALB
+* Database SG: Accepts traffic only from application servers
+
+**Significance:** Enforces least privilege and blocks unauthorized access.
+
+### 7. Testing High Availability
+
+* Accessed application via ALB DNS name
+* Observed traffic switching between AZs
+* Terminated an EC2 instance manually
+* Verified application stayed online and Auto Scaling launched a replacement instance
+
+**Significance:** Proves the system is fault-tolerant and self-healing.
+
+### 8. Optional Enhancements
+
+* Enabled Multi-AZ RDS for database failover
+* Created a second NAT Gateway for AZ-level resilience
+
+**Significance:** Eliminates single points of failure at database and NAT layers.
+
+---
+
+## Key Takeaways
+
+* High availability requires multiple Availability Zones
+* Auto Scaling + Load Balancer = resilient backend
+* Private subnets are essential for security
+* Layered security groups enforce proper access control
+* AWS services are designed to fail safely, not silently
